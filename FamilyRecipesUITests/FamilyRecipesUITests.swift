@@ -23,14 +23,34 @@ final class FamilyRecipesUITests: XCTestCase {
     }
 
     @MainActor
-    func testExample() throws {
-        // UI tests must launch the application that they test.
+    func testReturnAddsAnotherIngredientAndStep() {
         let app = XCUIApplication()
         app.launch()
 
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-        // XCUIAutomation Documentation
-        // https://developer.apple.com/documentation/xcuiautomation
+        app.navigationBars["Recipes"].buttons["Add Recipe"].tap()
+        let title = "Multiline Recipe " + UUID().uuidString
+        let titleField = app.textFields["Title"]
+        titleField.tap()
+        titleField.typeText(title)
+
+        let ingredients = app.textViews["Ingredients"]
+        ingredients.tap()
+        ingredients.typeText("Garlic, minced\nShoyu")
+
+        let steps = app.textViews["Steps"]
+        if !steps.isHittable {
+            app.swipeUp()
+        }
+        steps.tap()
+        steps.typeText("Mix the sauce.\nSimmer the chicken.")
+
+        app.navigationBars["New Recipe"].buttons["Save"].tap()
+        app.staticTexts[title].tap()
+
+        XCTAssertTrue(app.staticTexts["Garlic, minced"].exists)
+        XCTAssertTrue(app.staticTexts["Shoyu"].exists)
+        XCTAssertTrue(app.staticTexts["1. Mix the sauce."].exists)
+        XCTAssertTrue(app.staticTexts["2. Simmer the chicken."].exists)
     }
 
     @MainActor
