@@ -14,6 +14,28 @@ final class Recipe {
     @Relationship(deleteRule: .cascade, inverse: \CollectionEntry.recipe)
     var collectionEntries: [CollectionEntry] = []
 
+    var shareText: String {
+        var sections = [title]
+
+        if let servings, !servings.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            sections.append("Serves \(servings)")
+        }
+        if !ingredients.isEmpty {
+            sections.append("Ingredients\n" + ingredients.joined(separator: "\n"))
+        }
+        if !steps.isEmpty {
+            let numberedSteps = steps.enumerated().map { index, step in
+                "\(index + 1). \(step)"
+            }
+            sections.append("Steps\n" + numberedSteps.joined(separator: "\n"))
+        }
+        if let familyNote, !familyNote.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            sections.append("Family Note\n" + familyNote)
+        }
+
+        return sections.joined(separator: "\n\n")
+    }
+
     init(title: String) {
         id = UUID()
         self.title = title

@@ -2,6 +2,20 @@ import SwiftData
 import SwiftUI
 
 struct ContentView: View {
+    var body: some View {
+        TabView {
+            Tab("Recipes", systemImage: "book") {
+                RecipeLibraryView()
+            }
+
+            Tab("Collections", systemImage: "books.vertical") {
+                CollectionLibraryView()
+            }
+        }
+    }
+}
+
+struct RecipeLibraryView: View {
     @Query(sort: \Recipe.title) private var recipes: [Recipe]
     @State private var isAddingRecipe = false
 
@@ -11,7 +25,7 @@ struct ContentView: View {
                 NavigationLink {
                     RecipeDetailView(recipe: recipe)
                 } label: {
-                    Text(recipe.title)
+                    RecipeRow(title: recipe.title)
                 }
             }
             .overlay {
@@ -19,7 +33,9 @@ struct ContentView: View {
                     ContentUnavailableView {
                         Label("No Recipes Yet", systemImage: "book")
                     } actions: {
-                        Button("Add Recipe") { isAddingRecipe = true }
+                        Button("Add Recipe") {
+                            isAddingRecipe = true
+                        }
                     }
                 }
             }
@@ -40,7 +56,19 @@ struct ContentView: View {
     }
 }
 
+struct RecipeRow: View {
+    let title: String
+
+    var body: some View {
+        Text(title)
+    }
+}
+
 #Preview {
     ContentView()
-        .modelContainer(for: Recipe.self, inMemory: true)
+        .modelContainer(for: [
+            Recipe.self,
+            RecipeCollection.self,
+            CollectionEntry.self,
+        ], inMemory: true)
 }

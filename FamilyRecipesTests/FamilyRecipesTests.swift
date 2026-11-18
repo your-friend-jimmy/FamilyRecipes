@@ -5,6 +5,47 @@ import Testing
 
 struct FamilyRecipesTests {
     @MainActor
+    @Test func sharedRecipePreservesWordingAndSectionOrder() {
+        let recipe = Recipe(title: "Shoyu Chicken")
+        recipe.servings = "4–6"
+        recipe.ingredients = ["3 lb chicken thighs", "a splash of shoyu"]
+        recipe.steps = ["Mix the sauce.", "Simmer until tender.\nServe with rice."]
+        recipe.familyNote = "Auntie’s version."
+
+        #expect(recipe.shareText == """
+        Shoyu Chicken
+
+        Serves 4–6
+
+        Ingredients
+        3 lb chicken thighs
+        a splash of shoyu
+
+        Steps
+        1. Mix the sauce.
+        2. Simmer until tender.
+        Serve with rice.
+
+        Family Note
+        Auntie’s version.
+        """)
+    }
+
+    @MainActor
+    @Test func sharedRecipeOmitsEmptySectionsAndReflectsEdits() {
+        let recipe = Recipe(title: "Rice")
+        #expect(recipe.shareText == "Rice")
+        let originalSnapshot = recipe.shareText
+
+        recipe.title = "Steamed Rice"
+        recipe.servings = "  "
+        recipe.familyNote = "\n"
+        recipe.ingredients = ["1 cup rice"]
+        #expect(recipe.shareText == "Steamed Rice\n\nIngredients\n1 cup rice")
+        #expect(originalSnapshot == "Rice")
+    }
+
+    @MainActor
     @Test func recipeDraftRequiresATitleAndPreservesLineOrder() {
         var draft = RecipeDraft()
         draft.title = "  "
@@ -53,6 +94,78 @@ struct FamilyRecipesTests {
 
         #expect(savedRecipes.map(\.title) == ["Shoyu Chicken"])
         #expect(savedEntries.isEmpty)
+    }
+
+    @MainActor
+    @Test func collectionsKeepRecipesIndependentAndPreventDuplicateEntries() throws {
+        let schema = Schema([
+            Recipe.self,
+            RecipeCollection.self,
+            CollectionEntry.self,
+        ])
+        let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+        let container = try ModelContainer(for: schema, configurations: [configuration])
+        let context = container.mainContext
+
+        let recipe = Recipe(title: "Shoyu Chicken")
+        let dinners = RecipeCollection(name: "Weeknight Dinners")
+        let favorites = RecipeCollection(name: "Family Favorites")
+        context.insert(recipe)
+        context.insert(dinners)
+        context.insert(favorites)
+
+        let dinnerEntry = try #require(dinners.add(recipe: recipe))
+        context.insert(dinnerEntry)
+        let favoriteEntry = try #require(favorites.add(recipe: recipe))
+        context.insert(favoriteEntry)
+        try context.save()
+
+        #expect(dinners.add(recipe: recipe) == nil)
+
+        context.delete(dinnerEntry)
+        try context.save()
+
+        let savedRecipes = try context.fetch(FetchDescriptor<Recipe>())
+        let savedEntries = try context.fetch(FetchDescriptor<CollectionEntry>())
+
+        #expect(savedRecipes.map(\.title) == ["Shoyu Chicken"])
+        #expect(savedEntries.map(\.collection?.name) == ["Family Favorites"])
+    }
+
+    @MainActor
+    @Test func collectionEntryOrderPersistsAfterSaving() throws {
+        let schema = Schema([
+            Recipe.self,
+            RecipeCollection.self,
+            CollectionEntry.self,
+        ])
+        let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+        let container = try ModelContainer(for: schema, configurations: [configuration])
+        let context = container.mainContext
+
+        let firstRecipe = Recipe(title: "First")
+        let secondRecipe = Recipe(title: "Second")
+        let collection = RecipeCollection(name: "Dinner")
+        context.insert(firstRecipe)
+        context.insert(secondRecipe)
+        context.insert(collection)
+
+        let firstEntry = try #require(collection.add(recipe: firstRecipe))
+        let secondEntry = try #require(collection.add(recipe: secondRecipe))
+        context.insert(firstEntry)
+        context.insert(secondEntry)
+        try context.save()
+
+        firstEntry.position = 1
+        secondEntry.position = 0
+        try context.save()
+
+        let descriptor = FetchDescriptor<CollectionEntry>(
+            sortBy: [SortDescriptor(\.position)]
+        )
+        let savedEntries = try context.fetch(descriptor)
+
+        #expect(savedEntries.map { $0.recipe?.title } == ["Second", "First"])
     }
 
     @MainActor

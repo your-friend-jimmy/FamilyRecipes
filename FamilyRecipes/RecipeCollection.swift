@@ -13,6 +13,19 @@ final class RecipeCollection {
         id = UUID()
         self.name = name
     }
+
+    func contains(recipe: Recipe) -> Bool {
+        entries.contains { $0.recipe?.id == recipe.id }
+    }
+
+    func add(recipe: Recipe) -> CollectionEntry? {
+        guard !contains(recipe: recipe) else {
+            return nil
+        }
+
+        let position = (entries.map(\.position).max() ?? -1) + 1
+        return CollectionEntry(recipe: recipe, collection: self, position: position)
+    }
 }
 
 @Model

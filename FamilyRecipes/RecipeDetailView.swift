@@ -3,6 +3,7 @@ import SwiftUI
 struct RecipeDetailView: View {
     let recipe: Recipe
     @State private var isEditing = false
+    @State private var isAddingToCollection = false
 
     var body: some View {
         List {
@@ -33,11 +34,28 @@ struct RecipeDetailView: View {
         .navigationTitle(recipe.title)
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                Button("Edit") { isEditing = true }
+                ShareLink(item: recipe.shareText, subject: Text(recipe.title)) {
+                    Label("Share Recipe", systemImage: "square.and.arrow.up")
+                }
+            }
+            ToolbarItem(placement: .primaryAction) {
+                Button("Edit") {
+                    isEditing = true
+                }
+            }
+            ToolbarItem(placement: .secondaryAction) {
+                Button {
+                    isAddingToCollection = true
+                } label: {
+                    Label("Add to Collection", systemImage: "books.vertical.badge.plus")
+                }
             }
         }
         .sheet(isPresented: $isEditing) {
             RecipeEditorView(recipe: recipe)
+        }
+        .sheet(isPresented: $isAddingToCollection) {
+            RecipeCollectionPickerView(recipe: recipe)
         }
     }
 }

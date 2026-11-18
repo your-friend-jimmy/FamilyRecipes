@@ -16,6 +16,14 @@
     { "kind": "folder", "path": "FamilyRecipesUITests", "target-membership": [ "FamilyRecipesUITests" ] },
     {
       "kind": "group",
+      "path": "Resource",
+      "children": [
+        { "path": "recipe-app-build-plan.md", "target-membership": [ "FamilyRecipes/resources" ] },
+        { "path": "recipe-app-product-brief.md", "target-membership": [ "FamilyRecipes/resources" ] },
+        { "path": "2026-11-17-save-a-recipe.md", "target-membership": [ "FamilyRecipes/resources" ] },
+      ],
+    }, {
+      "kind": "group",
       "name": "Products",
       "children": [
         { "path": "<PRODUCTS>/FamilyRecipes.app", "id": "1A10923530AD137F00A5D392", "type": "wrapper.application", "index": false },
