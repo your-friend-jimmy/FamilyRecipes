@@ -11,6 +11,9 @@ final class Recipe {
     var familyNote: String?
     var updatedAt: Date
 
+    @Relationship(deleteRule: .cascade, inverse: \CollectionEntry.recipe)
+    var collectionEntries: [CollectionEntry] = []
+
     init(title: String) {
         id = UUID()
         self.title = title

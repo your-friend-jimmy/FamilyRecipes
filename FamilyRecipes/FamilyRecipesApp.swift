@@ -14,6 +14,8 @@ struct FamilyRecipesApp: App {
         let schema = Schema([
             Item.self,
             Recipe.self,
+            RecipeCollection.self,
+            CollectionEntry.self,
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
