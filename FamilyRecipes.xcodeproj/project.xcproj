@@ -21,6 +21,7 @@
         { "path": "recipe-app-build-plan.md", "target-membership": [ "FamilyRecipes/resources" ] },
         { "path": "recipe-app-product-brief.md", "target-membership": [ "FamilyRecipes/resources" ] },
         { "path": "2026-11-17-save-a-recipe.md", "target-membership": [ "FamilyRecipes/resources" ] },
+        { "path": "recipe-app-roadmap.md", "target-membership": [ "FamilyRecipes/resources" ] },
       ],
     }, {
       "kind": "group",
