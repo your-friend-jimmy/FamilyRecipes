@@ -19,8 +19,8 @@ The first release is ready for beta when all four flows work with real family re
 
 | Area | Status | What remains |
 |---|---|---|
-| Recipe library | **Partial** | Add title search and confirmed recipe deletion; finish release-flow UI tests. |
-| Collections | **Partial** | Core creation, membership, removal, and ordering exist; verify persistence and edge cases through the UI. |
+| Recipe library | **Partial** | Finish release-flow UI tests. |
+| Collections | **Partial** | Verify membership, removal, ordering, and persistence edge cases through the UI. |
 | Recipe sharing | **Partial** | Formatted text and the share sheet exist; validate the received message on a real device. |
 | Printable cookbooks | **Next** | Build PDF generation, preview, sharing, and printing. |
 | Release quality | **Next** | Complete accessibility, error-state, persistence, and end-to-end checks. |
@@ -35,7 +35,7 @@ The app currently builds successfully for testing. Existing automated coverage c
 - [x] Add case-insensitive recipe search by title with an appropriate no-results state.
 - [x] Add recipe deletion from the recipe detail screen with confirmation.
 - [x] Ensure deleting a recipe removes its collection entries without deleting its collections.
-- [ ] Verify collection names cannot be saved when blank after trimming whitespace.
+- [x] Verify collection names cannot be saved when blank after trimming whitespace.
 - [ ] Verify a recipe can belong to multiple collections and cannot appear twice in one collection.
 - [ ] Verify removing a recipe from one collection preserves the recipe and its other memberships.
 - [ ] Verify collection recipe order survives app relaunch.

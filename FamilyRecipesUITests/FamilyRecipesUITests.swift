@@ -22,9 +22,15 @@ final class FamilyRecipesUITests: XCTestCase {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
 
+    private func makeApp() -> XCUIApplication {
+        let app = XCUIApplication()
+        app.launchArguments.append("--ui-testing")
+        return app
+    }
+
     @MainActor
     func testReturnAddsAnotherIngredientAndStep() {
-        let app = XCUIApplication()
+        let app = makeApp()
         app.launch()
 
         app.navigationBars["Recipes"].buttons["Add Recipe"].tap()
@@ -55,11 +61,12 @@ final class FamilyRecipesUITests: XCTestCase {
 
     @MainActor
     func testRecipeTitleSearchFiltersAndShowsNoResults() {
-        let app = XCUIApplication()
+        let app = makeApp()
         app.launch()
 
         app.navigationBars["Recipes"].buttons["Add Recipe"].tap()
-        let title = "Searchable Shoyu " + UUID().uuidString
+        let uniqueID = UUID().uuidString
+        let title = "Searchable Shoyu " + uniqueID
         let titleField = app.textFields["Title"]
         titleField.tap()
         titleField.typeText(title)
@@ -69,8 +76,8 @@ final class FamilyRecipesUITests: XCTestCase {
         let searchField = app.searchFields["Search recipes"]
         XCTAssertTrue(searchField.waitForExistence(timeout: 2))
         searchField.tap()
-        searchField.typeText("sEaRcHaBlE")
-        XCTAssertTrue(app.staticTexts[title].exists)
+        searchField.typeText("sEaRcHaBlE sHoYu " + uniqueID.lowercased())
+        XCTAssertTrue(app.staticTexts[title].waitForExistence(timeout: 2))
 
         searchField.buttons["Clear text"].tap()
         searchField.typeText("No match " + UUID().uuidString)
@@ -78,12 +85,12 @@ final class FamilyRecipesUITests: XCTestCase {
         XCTAssertTrue(noResults.waitForExistence(timeout: 2))
 
         searchField.buttons["Clear text"].tap()
-        XCTAssertTrue(app.staticTexts[title].waitForExistence(timeout: 2))
+        XCTAssertTrue(noResults.waitForNonExistence(timeout: 2))
     }
 
     @MainActor
     func testRecipeDeletionRequiresConfirmation() {
-        let app = XCUIApplication()
+        let app = makeApp()
         app.launch()
 
         app.navigationBars["Recipes"].buttons["Add Recipe"].tap()
@@ -112,10 +119,35 @@ final class FamilyRecipesUITests: XCTestCase {
     }
 
     @MainActor
+    func testCollectionNameMustContainNonWhitespaceTextAndIsTrimmed() {
+        let app = makeApp()
+        app.launch()
+
+        app.tabBars.buttons["Collections"].tap()
+        app.navigationBars["Collections"].buttons["Create Collection"].tap()
+
+        let nameField = app.textFields["Collection Name"]
+        let saveButton = app.navigationBars["New Collection"].buttons["Save"]
+        XCTAssertFalse(saveButton.isEnabled)
+
+        nameField.tap()
+        nameField.typeText("   ")
+        XCTAssertFalse(saveButton.isEnabled)
+
+        let name = "Family Favorites " + UUID().uuidString
+        nameField.typeText(name + "  ")
+        XCTAssertTrue(saveButton.isEnabled)
+        saveButton.tap()
+
+        XCTAssertTrue(app.staticTexts[name].waitForExistence(timeout: 2))
+        XCTAssertFalse(app.staticTexts["   " + name + "  "].exists)
+    }
+
+    @MainActor
     func testLaunchPerformance() throws {
         // This measures how long it takes to launch your application.
         measure(metrics: [XCTApplicationLaunchMetric()]) {
-            XCUIApplication().launch()
+            makeApp().launch()
         }
     }
 }

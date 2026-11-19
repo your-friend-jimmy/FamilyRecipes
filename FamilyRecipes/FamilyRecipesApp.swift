@@ -5,8 +5,9 @@
 //  Created by James Phillips on 11/17/26.
 //
 
-import SwiftUI
+import Foundation
 import SwiftData
+import SwiftUI
 
 @main
 struct FamilyRecipesApp: App {
@@ -17,7 +18,8 @@ struct FamilyRecipesApp: App {
             RecipeCollection.self,
             CollectionEntry.self,
         ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+        let isUITesting = ProcessInfo.processInfo.arguments.contains("--ui-testing")
+        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: isUITesting)
 
         do {
             return try ModelContainer(for: schema, configurations: [modelConfiguration])
