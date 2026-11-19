@@ -36,7 +36,7 @@ The app currently builds successfully for testing. Existing automated coverage c
 - [x] Add recipe deletion from the recipe detail screen with confirmation.
 - [x] Ensure deleting a recipe removes its collection entries without deleting its collections.
 - [x] Verify collection names cannot be saved when blank after trimming whitespace.
-- [ ] Verify a recipe can belong to multiple collections and cannot appear twice in one collection.
+- [x] Verify a recipe can belong to multiple collections and cannot appear twice in one collection.
 - [ ] Verify removing a recipe from one collection preserves the recipe and its other memberships.
 - [ ] Verify collection recipe order survives app relaunch.
 - [ ] Add UI coverage for create, edit, cancel, search, collection membership, reordering, and destructive confirmation flows.

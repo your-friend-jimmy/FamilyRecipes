@@ -144,6 +144,60 @@ final class FamilyRecipesUITests: XCTestCase {
     }
 
     @MainActor
+    func testRecipeCanBelongToMultipleCollectionsWithoutDuplicates() {
+        let app = makeApp()
+        app.launch()
+
+        let uniqueID = UUID().uuidString
+        let firstCollection = "Dinner " + uniqueID
+        let secondCollection = "Favorites " + uniqueID
+        let recipeTitle = "Shared Recipe " + uniqueID
+
+        app.tabBars.buttons["Collections"].tap()
+        app.navigationBars["Collections"].buttons["Create Collection"].tap()
+        app.textFields["Collection Name"].tap()
+        app.textFields["Collection Name"].typeText(firstCollection)
+        app.navigationBars["New Collection"].buttons["Save"].tap()
+        app.navigationBars["Collections"].buttons["Create Collection"].tap()
+        app.textFields["Collection Name"].tap()
+        app.textFields["Collection Name"].typeText(secondCollection)
+        app.navigationBars["New Collection"].buttons["Save"].tap()
+
+        app.tabBars.buttons["Recipes"].tap()
+        app.navigationBars["Recipes"].buttons["Add Recipe"].tap()
+        app.textFields["Title"].tap()
+        app.textFields["Title"].typeText(recipeTitle)
+        app.navigationBars["New Recipe"].buttons["Save"].tap()
+        app.staticTexts[recipeTitle].tap()
+
+        app.navigationBars[recipeTitle].buttons["More"].tap()
+        app.buttons["Add to Collection"].tap()
+        app.buttons[firstCollection].tap()
+        app.navigationBars[recipeTitle].buttons["More"].tap()
+        app.buttons["Add to Collection"].tap()
+        app.buttons[secondCollection].tap()
+
+        app.navigationBars[recipeTitle].buttons["More"].tap()
+        app.buttons["Add to Collection"].tap()
+        XCTAssertFalse(app.buttons[firstCollection].isEnabled)
+        XCTAssertFalse(app.buttons[secondCollection].isEnabled)
+        app.navigationBars["Add to Collection"].buttons["Done"].tap()
+
+        app.tabBars.buttons["Collections"].tap()
+        let matchingRecipeRows = app.staticTexts.matching(
+            NSPredicate(format: "label == %@", recipeTitle)
+        )
+
+        app.staticTexts[firstCollection].tap()
+        XCTAssertTrue(app.staticTexts[recipeTitle].waitForExistence(timeout: 2))
+        XCTAssertEqual(matchingRecipeRows.count, 1)
+        app.navigationBars[firstCollection].buttons["Collections"].tap()
+        app.staticTexts[secondCollection].tap()
+        XCTAssertTrue(app.staticTexts[recipeTitle].waitForExistence(timeout: 2))
+        XCTAssertEqual(matchingRecipeRows.count, 1)
+    }
+
+    @MainActor
     func testLaunchPerformance() throws {
         // This measures how long it takes to launch your application.
         measure(metrics: [XCTApplicationLaunchMetric()]) {
