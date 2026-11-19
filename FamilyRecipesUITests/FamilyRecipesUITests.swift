@@ -82,6 +82,36 @@ final class FamilyRecipesUITests: XCTestCase {
     }
 
     @MainActor
+    func testRecipeDeletionRequiresConfirmation() {
+        let app = XCUIApplication()
+        app.launch()
+
+        app.navigationBars["Recipes"].buttons["Add Recipe"].tap()
+        let title = "Delete Me " + UUID().uuidString
+        let titleField = app.textFields["Title"]
+        titleField.tap()
+        titleField.typeText(title)
+        app.navigationBars["New Recipe"].buttons["Save"].tap()
+        app.staticTexts[title].tap()
+
+        app.navigationBars[title].buttons["More"].tap()
+        app.buttons["Delete Recipe"].tap()
+        XCTAssertTrue(app.alerts["Delete Recipe?"].waitForExistence(timeout: 2))
+        app.alerts["Delete Recipe?"].buttons["Cancel"].tap()
+        XCTAssertTrue(app.navigationBars[title].exists)
+        app.navigationBars[title].buttons["Recipes"].tap()
+        XCTAssertTrue(app.staticTexts[title].waitForExistence(timeout: 2))
+        app.staticTexts[title].tap()
+
+        app.navigationBars[title].buttons["More"].tap()
+        app.buttons["Delete Recipe"].tap()
+        app.alerts["Delete Recipe?"].buttons["Delete Recipe"].tap()
+
+        XCTAssertTrue(app.navigationBars["Recipes"].waitForExistence(timeout: 2))
+        XCTAssertFalse(app.staticTexts[title].exists)
+    }
+
+    @MainActor
     func testLaunchPerformance() throws {
         // This measures how long it takes to launch your application.
         measure(metrics: [XCTApplicationLaunchMetric()]) {

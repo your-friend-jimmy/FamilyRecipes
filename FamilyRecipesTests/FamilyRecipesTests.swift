@@ -97,6 +97,37 @@ struct FamilyRecipesTests {
     }
 
     @MainActor
+    @Test func deletingARecipeDeletesItsEntriesAndKeepsItsCollections() throws {
+        let schema = Schema([
+            Recipe.self,
+            RecipeCollection.self,
+            CollectionEntry.self,
+        ])
+        let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+        let container = try ModelContainer(for: schema, configurations: [configuration])
+        let context = container.mainContext
+
+        let recipe = Recipe(title: "Shoyu Chicken")
+        let collection = RecipeCollection(name: "Weeknight Dinners")
+        let entry = CollectionEntry(recipe: recipe, collection: collection, position: 0)
+        context.insert(recipe)
+        context.insert(collection)
+        context.insert(entry)
+        try context.save()
+
+        context.delete(recipe)
+        try context.save()
+
+        let savedRecipes = try context.fetch(FetchDescriptor<Recipe>())
+        let savedCollections = try context.fetch(FetchDescriptor<RecipeCollection>())
+        let savedEntries = try context.fetch(FetchDescriptor<CollectionEntry>())
+
+        #expect(savedRecipes.isEmpty)
+        #expect(savedCollections.map(\.name) == ["Weeknight Dinners"])
+        #expect(savedEntries.isEmpty)
+    }
+
+    @MainActor
     @Test func collectionsKeepRecipesIndependentAndPreventDuplicateEntries() throws {
         let schema = Schema([
             Recipe.self,
