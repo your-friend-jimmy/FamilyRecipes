@@ -203,4 +203,27 @@ struct FamilyRecipesTests {
 
         #expect(recipes.map { $0.title } == ["Existing Recipe"])
     }
+
+    @MainActor
+    @Test func recipeTitleSearchMatchesPartialTextIgnoringCase() {
+        let recipe = Recipe(title: "Shoyu Chicken")
+
+        #expect(recipe.matchesTitleSearch("HOYU"))
+        #expect(recipe.matchesTitleSearch("chicken"))
+    }
+
+    @MainActor
+    @Test func recipeTitleSearchTrimsTheQueryAndTreatsBlankAsUnfiltered() {
+        let recipe = Recipe(title: "Shoyu Chicken")
+
+        #expect(recipe.matchesTitleSearch("  shoyu\n"))
+        #expect(recipe.matchesTitleSearch("  \n"))
+    }
+
+    @MainActor
+    @Test func recipeTitleSearchRejectsUnrelatedText() {
+        let recipe = Recipe(title: "Shoyu Chicken")
+
+        #expect(!recipe.matchesTitleSearch("lasagna"))
+    }
 }

@@ -14,6 +14,11 @@ final class Recipe {
     @Relationship(deleteRule: .cascade, inverse: \CollectionEntry.recipe)
     var collectionEntries: [CollectionEntry] = []
 
+    func matchesTitleSearch(_ searchText: String) -> Bool {
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        return query.isEmpty || title.localizedCaseInsensitiveContains(query)
+    }
+
     var shareText: String {
         var sections = [title]
 

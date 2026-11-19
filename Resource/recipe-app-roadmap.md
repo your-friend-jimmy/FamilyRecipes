@@ -32,7 +32,7 @@ The app currently builds successfully for testing. Existing automated coverage c
 
 **Outcome:** Saving, finding, deleting, and organizing recipes is dependable enough to support cookbook export.
 
-- [ ] Add case-insensitive recipe search by title with an appropriate no-results state.
+- [x] Add case-insensitive recipe search by title with an appropriate no-results state.
 - [ ] Add recipe deletion from the recipe detail screen with confirmation.
 - [ ] Ensure deleting a recipe removes its collection entries without deleting its collections.
 - [ ] Verify collection names cannot be saved when blank after trimming whitespace.

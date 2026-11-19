@@ -54,6 +54,34 @@ final class FamilyRecipesUITests: XCTestCase {
     }
 
     @MainActor
+    func testRecipeTitleSearchFiltersAndShowsNoResults() {
+        let app = XCUIApplication()
+        app.launch()
+
+        app.navigationBars["Recipes"].buttons["Add Recipe"].tap()
+        let title = "Searchable Shoyu " + UUID().uuidString
+        let titleField = app.textFields["Title"]
+        titleField.tap()
+        titleField.typeText(title)
+        app.navigationBars["New Recipe"].buttons["Save"].tap()
+
+        app.collectionViews.firstMatch.swipeDown()
+        let searchField = app.searchFields["Search recipes"]
+        XCTAssertTrue(searchField.waitForExistence(timeout: 2))
+        searchField.tap()
+        searchField.typeText("sEaRcHaBlE")
+        XCTAssertTrue(app.staticTexts[title].exists)
+
+        searchField.buttons["Clear text"].tap()
+        searchField.typeText("No match " + UUID().uuidString)
+        let noResults = app.descendants(matching: .any)["recipe-search-no-results"]
+        XCTAssertTrue(noResults.waitForExistence(timeout: 2))
+
+        searchField.buttons["Clear text"].tap()
+        XCTAssertTrue(app.staticTexts[title].waitForExistence(timeout: 2))
+    }
+
+    @MainActor
     func testLaunchPerformance() throws {
         // This measures how long it takes to launch your application.
         measure(metrics: [XCTApplicationLaunchMetric()]) {

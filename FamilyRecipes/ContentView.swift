@@ -18,10 +18,15 @@ struct ContentView: View {
 struct RecipeLibraryView: View {
     @Query(sort: \Recipe.title) private var recipes: [Recipe]
     @State private var isAddingRecipe = false
+    @State private var searchText = ""
+
+    private var filteredRecipes: [Recipe] {
+        recipes.filter { $0.matchesTitleSearch(searchText) }
+    }
 
     var body: some View {
         NavigationStack {
-            List(recipes) { recipe in
+            List(filteredRecipes) { recipe in
                 NavigationLink {
                     RecipeDetailView(recipe: recipe)
                 } label: {
@@ -37,9 +42,13 @@ struct RecipeLibraryView: View {
                             isAddingRecipe = true
                         }
                     }
+                } else if filteredRecipes.isEmpty {
+                    ContentUnavailableView.search(text: searchText)
+                        .accessibilityIdentifier("recipe-search-no-results")
                 }
             }
             .navigationTitle("Recipes")
+            .searchable(text: $searchText, prompt: "Search recipes")
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     Button {
