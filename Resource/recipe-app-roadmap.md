@@ -107,6 +107,12 @@ These ideas are intentionally outside the first-release completion path:
 - **Recipe capture:** Compare photo capture and web import after observing where testers currently keep recipes.
 - **Cookbook design options:** Consider recipe photos, chapter dividers, alternate layouts, and photo covers after validating the printer-friendly layout.
 
+## Completing roadmap items
+
+Use one branch per roadmap item. When the item is implemented, require the full test suite and a successful build before integration. For a small, self-contained change, merge the branch locally into `main`, run the tests again on the merged result, push `main`, and delete the finished branch. Pull from the remote only to synchronize before merging; pulling is not itself a completion step.
+
+Push the feature branch and open a pull request instead when the change affects persistence or migrations, security, release configuration, or needs another person’s review. Do not check off the roadmap item until its completion check has been exercised.
+
 ## Keeping this roadmap current
 
 Update the date and status table whenever a milestone changes. Check off work only after its completion check has been exercised, and add newly discovered release blockers to the milestone that owns the affected user flow. Product ideas that do not block the first-release goal belong in **Deferred experiments** rather than the active milestones.

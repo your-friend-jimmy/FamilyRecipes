@@ -36,6 +36,12 @@ Use two tabs, **Recipes** and **Collections**. The recipe detail hosts sending, 
 - **Collection** holds a stable ID and a name. **CollectionEntry** associates a recipe with a collection and stores its position. This lets each cookbook order the same recipe independently. Prevent duplicate entries within one collection.
 - When deleting a collection, remove its entries and retain its recipes. When deleting a recipe, remove its entries from every collection and ask for confirmation from the recipe screen.
 
+## Development workflow
+
+Use a separate branch for each roadmap item. The default completion path for a small, self-contained item is: run the full tests and build, merge locally into `main`, rerun the tests on the merged result, push `main`, and delete the completed branch. Pull only when synchronizing remote changes before the merge.
+
+Use a pushed feature branch and pull request for persistence or migration changes, security-sensitive work, release-configuration changes, or anything that needs another person’s review.
+
 ## First build session
 
 Create a SwiftUI project with a persistent SwiftData container. Implement only the recipe list, a sheet for adding and editing, and a simple detail view. Enter your own recipe and verify that edits persist after relaunch. Use that same recipe later to test sharing and make the first cookbook sample.
