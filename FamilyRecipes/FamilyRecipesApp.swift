@@ -18,8 +18,18 @@ struct FamilyRecipesApp: App {
             RecipeCollection.self,
             CollectionEntry.self,
         ])
-        let isUITesting = ProcessInfo.processInfo.arguments.contains("--ui-testing")
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: isUITesting)
+        let arguments = ProcessInfo.processInfo.arguments
+        let modelConfiguration: ModelConfiguration
+
+        if let storeArgumentIndex = arguments.firstIndex(of: "--ui-testing-store"),
+           arguments.indices.contains(storeArgumentIndex + 1) {
+            let storeName = arguments[storeArgumentIndex + 1]
+            let storeURL = URL.temporaryDirectory.appending(path: "FamilyRecipes-\(storeName).store")
+            modelConfiguration = ModelConfiguration(schema: schema, url: storeURL)
+        } else {
+            let isUITesting = arguments.contains("--ui-testing")
+            modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: isUITesting)
+        }
 
         do {
             return try ModelContainer(for: schema, configurations: [modelConfiguration])

@@ -38,7 +38,7 @@ The app currently builds successfully for testing. Existing automated coverage c
 - [x] Verify collection names cannot be saved when blank after trimming whitespace.
 - [x] Verify a recipe can belong to multiple collections and cannot appear twice in one collection.
 - [x] Verify removing a recipe from one collection preserves the recipe and its other memberships.
-- [ ] Verify collection recipe order survives app relaunch.
+- [x] Verify collection recipe order survives app relaunch.
 - [ ] Add UI coverage for create, edit, cancel, search, collection membership, reordering, and destructive confirmation flows.
 
 **Complete when:** A tester can add a handwritten-style recipe, edit and find it, place it in two collections, reorder it, remove it from one collection, and relaunch without losing wording, membership, or order.

@@ -28,6 +28,12 @@ final class FamilyRecipesUITests: XCTestCase {
         return app
     }
 
+    private func makePersistentApp(storeID: String) -> XCUIApplication {
+        let app = XCUIApplication()
+        app.launchArguments += ["--ui-testing-store", storeID]
+        return app
+    }
+
     @MainActor
     func testReturnAddsAnotherIngredientAndStep() {
         let app = makeApp()
@@ -246,6 +252,62 @@ final class FamilyRecipesUITests: XCTestCase {
         app.tabBars.buttons["Recipes"].tap()
         app.navigationBars[recipeTitle].buttons["Recipes"].tap()
         XCTAssertTrue(app.staticTexts[recipeTitle].waitForExistence(timeout: 2))
+    }
+
+    @MainActor
+    func testCollectionOrderSurvivesAppRelaunch() {
+        let uniqueID = UUID().uuidString
+        let app = makePersistentApp(storeID: uniqueID)
+        app.launch()
+
+        let collectionName = "Ordered Collection " + uniqueID
+        let firstRecipe = "First Recipe " + uniqueID
+        let secondRecipe = "Second Recipe " + uniqueID
+
+        for recipeTitle in [firstRecipe, secondRecipe] {
+            app.navigationBars["Recipes"].buttons["Add Recipe"].tap()
+            app.textFields["Title"].tap()
+            app.textFields["Title"].typeText(recipeTitle)
+            app.navigationBars["New Recipe"].buttons["Save"].tap()
+        }
+
+        app.tabBars.buttons["Collections"].tap()
+        app.navigationBars["Collections"].buttons["Create Collection"].tap()
+        app.textFields["Collection Name"].tap()
+        app.textFields["Collection Name"].typeText(collectionName)
+        app.navigationBars["New Collection"].buttons["Save"].tap()
+
+        app.tabBars.buttons["Recipes"].tap()
+        for recipeTitle in [firstRecipe, secondRecipe] {
+            app.staticTexts[recipeTitle].tap()
+            app.navigationBars[recipeTitle].buttons["More"].tap()
+            app.buttons["Add to Collection"].tap()
+            app.buttons[collectionName].tap()
+            app.navigationBars[recipeTitle].buttons["Recipes"].tap()
+        }
+
+        app.tabBars.buttons["Collections"].tap()
+        app.staticTexts[collectionName].tap()
+        XCTAssertLessThan(app.staticTexts[firstRecipe].frame.minY, app.staticTexts[secondRecipe].frame.minY)
+        app.navigationBars[collectionName].buttons["Edit"].tap()
+        let firstReorderButton = app.buttons["Reorder \(firstRecipe)"]
+        let secondReorderButton = app.buttons["Reorder \(secondRecipe)"]
+        XCTAssertTrue(firstReorderButton.isHittable)
+        XCTAssertTrue(secondReorderButton.isHittable)
+        firstReorderButton.press(forDuration: 0.5, thenDragTo: secondReorderButton)
+        app.navigationBars[collectionName].buttons["Done"].tap()
+        XCTAssertLessThan(app.staticTexts[secondRecipe].frame.minY, app.staticTexts[firstRecipe].frame.minY)
+
+        app.terminate()
+        app.launch()
+        app.tabBars.buttons["Collections"].tap()
+        app.staticTexts[collectionName].tap()
+
+        let relaunchedFirstRecipe = app.staticTexts[firstRecipe]
+        let relaunchedSecondRecipe = app.staticTexts[secondRecipe]
+        XCTAssertTrue(relaunchedFirstRecipe.waitForExistence(timeout: 2))
+        XCTAssertTrue(relaunchedSecondRecipe.waitForExistence(timeout: 2))
+        XCTAssertLessThan(relaunchedSecondRecipe.frame.minY, relaunchedFirstRecipe.frame.minY)
     }
 
     @MainActor
