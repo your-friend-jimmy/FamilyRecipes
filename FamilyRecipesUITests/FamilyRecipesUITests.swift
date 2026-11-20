@@ -198,6 +198,57 @@ final class FamilyRecipesUITests: XCTestCase {
     }
 
     @MainActor
+    func testRemovingRecipeFromOneCollectionPreservesOtherMemberships() {
+        let app = makeApp()
+        app.launch()
+
+        let uniqueID = UUID().uuidString
+        let firstCollection = "Remove From " + uniqueID
+        let secondCollection = "Keep In " + uniqueID
+        let recipeTitle = "Preserved Recipe " + uniqueID
+
+        app.tabBars.buttons["Collections"].tap()
+        app.navigationBars["Collections"].buttons["Create Collection"].tap()
+        app.textFields["Collection Name"].tap()
+        app.textFields["Collection Name"].typeText(firstCollection)
+        app.navigationBars["New Collection"].buttons["Save"].tap()
+        app.navigationBars["Collections"].buttons["Create Collection"].tap()
+        app.textFields["Collection Name"].tap()
+        app.textFields["Collection Name"].typeText(secondCollection)
+        app.navigationBars["New Collection"].buttons["Save"].tap()
+
+        app.tabBars.buttons["Recipes"].tap()
+        app.navigationBars["Recipes"].buttons["Add Recipe"].tap()
+        app.textFields["Title"].tap()
+        app.textFields["Title"].typeText(recipeTitle)
+        app.navigationBars["New Recipe"].buttons["Save"].tap()
+        app.staticTexts[recipeTitle].tap()
+
+        app.navigationBars[recipeTitle].buttons["More"].tap()
+        app.buttons["Add to Collection"].tap()
+        app.buttons[firstCollection].tap()
+        app.navigationBars[recipeTitle].buttons["More"].tap()
+        app.buttons["Add to Collection"].tap()
+        app.buttons[secondCollection].tap()
+
+        app.tabBars.buttons["Collections"].tap()
+        app.staticTexts[firstCollection].tap()
+        let recipeRow = app.staticTexts[recipeTitle]
+        XCTAssertTrue(recipeRow.waitForExistence(timeout: 2))
+        recipeRow.swipeLeft()
+        app.buttons["Delete"].tap()
+        XCTAssertTrue(recipeRow.waitForNonExistence(timeout: 2))
+
+        app.navigationBars[firstCollection].buttons["Collections"].tap()
+        app.staticTexts[secondCollection].tap()
+        XCTAssertTrue(app.staticTexts[recipeTitle].waitForExistence(timeout: 2))
+
+        app.tabBars.buttons["Recipes"].tap()
+        app.navigationBars[recipeTitle].buttons["Recipes"].tap()
+        XCTAssertTrue(app.staticTexts[recipeTitle].waitForExistence(timeout: 2))
+    }
+
+    @MainActor
     func testLaunchPerformance() throws {
         // This measures how long it takes to launch your application.
         measure(metrics: [XCTApplicationLaunchMetric()]) {
