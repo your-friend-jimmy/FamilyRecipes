@@ -311,6 +311,46 @@ final class FamilyRecipesUITests: XCTestCase {
     }
 
     @MainActor
+    func testRecipeEditCanBeCancelledOrSaved() {
+        let app = makeApp()
+        app.launch()
+
+        let uniqueID = UUID().uuidString
+        let originalTitle = "Original Recipe " + uniqueID
+        let cancelledTitle = "Cancelled Recipe " + uniqueID
+        let editedTitle = "Edited Recipe " + uniqueID
+
+        app.navigationBars["Recipes"].buttons["Add Recipe"].tap()
+        app.textFields["Title"].tap()
+        app.textFields["Title"].typeText(originalTitle)
+        app.navigationBars["New Recipe"].buttons["Save"].tap()
+        app.staticTexts[originalTitle].tap()
+
+        app.navigationBars[originalTitle].buttons["Edit"].tap()
+        let titleField = app.textFields["Title"]
+        titleField.tap(withNumberOfTaps: 3, numberOfTouches: 1)
+        titleField.typeText(cancelledTitle)
+        XCTAssertEqual(titleField.value as? String, cancelledTitle)
+        app.navigationBars["Edit Recipe"].buttons["Cancel"].tap()
+        XCTAssertTrue(app.navigationBars[originalTitle].waitForExistence(timeout: 2))
+        XCTAssertFalse(app.navigationBars[cancelledTitle].exists)
+
+        app.navigationBars[originalTitle].buttons["Edit"].tap()
+        let reopenedTitleField = app.textFields["Title"]
+        XCTAssertEqual(reopenedTitleField.value as? String, originalTitle)
+        reopenedTitleField.tap(withNumberOfTaps: 3, numberOfTouches: 1)
+        reopenedTitleField.typeText(editedTitle)
+        XCTAssertEqual(reopenedTitleField.value as? String, editedTitle)
+        app.navigationBars["Edit Recipe"].buttons["Save"].tap()
+        XCTAssertTrue(app.navigationBars[editedTitle].waitForExistence(timeout: 5))
+
+        app.navigationBars[editedTitle].buttons["Recipes"].tap()
+        XCTAssertTrue(app.staticTexts[editedTitle].waitForExistence(timeout: 2))
+        XCTAssertFalse(app.staticTexts[originalTitle].exists)
+        XCTAssertFalse(app.staticTexts[cancelledTitle].exists)
+    }
+
+    @MainActor
     func testLaunchPerformance() throws {
         // This measures how long it takes to launch your application.
         measure(metrics: [XCTApplicationLaunchMetric()]) {

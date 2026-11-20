@@ -19,8 +19,8 @@ The first release is ready for beta when all four flows work with real family re
 
 | Area | Status | What remains |
 |---|---|---|
-| Recipe library | **Partial** | Finish release-flow UI tests. |
-| Collections | **Partial** | Verify membership, removal, ordering, and persistence edge cases through the UI. |
+| Recipe library | **Complete** | Add, edit, cancel, search, and confirmed deletion are implemented and covered; share-text formatting is covered separately below. |
+| Collections | **Complete** | Creation, validation, membership, removal, ordering, and relaunch persistence are covered. |
 | Recipe sharing | **Partial** | Formatted text and the share sheet exist; validate the received message on a real device. |
 | Printable cookbooks | **Next** | Build PDF generation, preview, sharing, and printing. |
 | Release quality | **Next** | Complete accessibility, error-state, persistence, and end-to-end checks. |
@@ -39,7 +39,7 @@ The app currently builds successfully for testing. Existing automated coverage c
 - [x] Verify a recipe can belong to multiple collections and cannot appear twice in one collection.
 - [x] Verify removing a recipe from one collection preserves the recipe and its other memberships.
 - [x] Verify collection recipe order survives app relaunch.
-- [ ] Add UI coverage for create, edit, cancel, search, collection membership, reordering, and destructive confirmation flows.
+- [x] Add UI coverage for create, edit, cancel, search, collection membership, reordering, and destructive confirmation flows.
 
 **Complete when:** A tester can add a handwritten-style recipe, edit and find it, place it in two collections, reorder it, remove it from one collection, and relaunch without losing wording, membership, or order.
 
